@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+
+import type { Json } from "@/lib/database.types";
+import { createClient } from "@/lib/supabase/client";
 
 type Direction = "Long" | "Short";
-type ModuleKey = "context" | "execution" | "invalidation" | "events" | "scaling";
+type ModuleKey = "context" | "trigger" | "invalidation" | "events" | "scaling";
 
 type Draft = {
   instrument: string;
@@ -38,12 +42,12 @@ const starterDraft: Draft = {
   invalidation: "Acceptance below 24,775 or a failed reclaim after the opening drive",
   events: "",
   scaling: "Take one contract at +60 points; trail the runner beneath the last 5-minute higher low",
-  modules: { context: true, execution: true, invalidation: true, events: false, scaling: true },
+  modules: { context: true, trigger: true, invalidation: true, events: false, scaling: true },
 };
 
 const moduleMeta: Array<{ key: ModuleKey; label: string; helper: string }> = [
   { key: "context", label: "Market context", helper: "Structure, bias, and session conditions" },
-  { key: "execution", label: "Execution trigger", helper: "What must happen before entry" },
+  { key: "trigger", label: "Execution trigger", helper: "What must happen before entry" },
   { key: "invalidation", label: "Invalidation", helper: "What proves the idea wrong" },
   { key: "events", label: "News & events", helper: "Scheduled risk and blackout windows" },
   { key: "scaling", label: "Scale plan", helper: "Partial exits and runner management" },
@@ -76,14 +80,27 @@ function Field({ label, children, helper }: { label: string; children: React.Rea
 export default function Home() {
   const [draft, setDraft] = useState<Draft>(starterDraft);
   const [saved, setSaved] = useState(false);
-  const [ready, setReady] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [cloudState, setCloudState] = useState<"idle" | "saving" | "saved" | "local" | "error">("idle");
 
   useEffect(() => {
-    const stored = window.localStorage.getItem("futures-plan-draft");
-    if (stored) {
-      try { setDraft(JSON.parse(stored) as Draft); } catch { /* Keep the starter draft. */ }
-    }
-    setReady(true);
+    const timer = window.setTimeout(() => {
+      const stored = window.localStorage.getItem("futures-plan-draft");
+      if (stored) {
+        try { setDraft(JSON.parse(stored) as Draft); } catch { /* Keep the starter draft. */ }
+      }
+    }, 0);
+
+    const supabase = createClient();
+    void supabase.auth.getUser().then(({ data }) => setUserEmail(data.user?.email ?? null));
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) =>
+      setUserEmail(session?.user.email ?? null),
+    );
+
+    return () => {
+      window.clearTimeout(timer);
+      authListener.subscription.unsubscribe();
+    };
   }, []);
 
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => {
@@ -113,14 +130,61 @@ export default function Home() {
     setSaved(true);
   };
 
-  const lockPlan = () => {
+  const lockPlan = async () => {
     const next = { ...draft, lockedAt: new Date().toISOString() };
     setDraft(next);
     window.localStorage.setItem("futures-plan-draft", JSON.stringify(next));
     setSaved(true);
-  };
 
-  if (!ready) return null;
+    const supabase = createClient();
+    const { data: authData } = await supabase.auth.getUser();
+    if (!authData.user) {
+      setCloudState("local");
+      return;
+    }
+
+    setCloudState("saving");
+    const { data: plan, error: planError } = await supabase
+      .from("trade_plans")
+      .insert({
+        owner_id: authData.user.id,
+        title: `${next.instrument} ${next.direction} plan`,
+        status: "locked",
+        direction: next.direction.toLowerCase(),
+        session_name: next.session,
+        planned_entry: numericEntry,
+        hard_stop: numericStop,
+        primary_target: numericTarget,
+        planned_quantity: contracts,
+        max_risk_amount: cashRisk,
+        thesis: next.thesis,
+        planned_for: next.lockedAt,
+        locked_at: next.lockedAt,
+        current_version: 1,
+      })
+      .select("id")
+      .single();
+
+    if (planError || !plan) {
+      setCloudState("error");
+      return;
+    }
+
+    const snapshotText = JSON.stringify(next);
+    const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(snapshotText));
+    const snapshotHash = Array.from(new Uint8Array(digest), (byte) =>
+      byte.toString(16).padStart(2, "0"),
+    ).join("");
+    const { error: versionError } = await supabase.from("trade_plan_versions").insert({
+      owner_id: authData.user.id,
+      plan_id: plan.id,
+      version_number: 1,
+      snapshot: JSON.parse(snapshotText) as Json,
+      snapshot_hash: snapshotHash,
+    });
+
+    setCloudState(versionError ? "error" : "saved");
+  };
 
   return (
     <div className="app-shell">
@@ -141,7 +205,7 @@ export default function Home() {
       <main className="main">
         <header className="topbar">
           <div><span className="eyebrow">Thursday · September 3</span><h1>Good morning, Zane.</h1><p>Plan the trade. Trade the plan. Review the evidence.</p></div>
-          <div className="top-actions"><button className="ghost-button">Import activity</button><button className="primary-button" onClick={() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" })}>+ New futures plan</button></div>
+          <div className="top-actions"><Link className="ghost-button" href={userEmail ? "#settings" : "/login"}>{userEmail ? userEmail : "Sign in"}</Link><button className="ghost-button">Import activity</button><button className="primary-button" onClick={() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" })}>+ New futures plan</button></div>
         </header>
 
         <section className="stats" id="overview" aria-label="Performance summary">
@@ -193,7 +257,7 @@ export default function Home() {
             </div>
 
             <div className="plan-actions">
-              <div className="save-state"><Icon name="shield" /><span><strong>{draft.lockedAt ? "Immutable snapshot saved" : saved ? "Draft saved locally" : "Changes not yet saved"}</strong><small>{draft.lockedAt ? new Date(draft.lockedAt).toLocaleString() : "This prototype stores the draft on this device."}</small></span></div>
+              <div className="save-state"><Icon name="shield" /><span><strong>{draft.lockedAt ? cloudState === "saved" ? "Immutable snapshot saved to Northstar" : cloudState === "saving" ? "Saving immutable snapshot…" : cloudState === "error" ? "Cloud save failed · local copy is safe" : cloudState === "local" ? "Locked locally · sign in for cloud sync" : "Immutable snapshot saved" : saved ? "Draft saved locally" : "Changes not yet saved"}</strong><small>{draft.lockedAt ? new Date(draft.lockedAt).toLocaleString() : "Drafts remain on this device until locked."}</small></span></div>
               {!draft.lockedAt ? <><button className="ghost-button" onClick={saveDraft}>Save draft</button><button className="primary-button" onClick={lockPlan}>Lock plan</button></> : <button className="ghost-button" onClick={() => update("lockedAt", undefined)}>Create revision</button>}
             </div>
           </article>

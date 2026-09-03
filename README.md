@@ -1,36 +1,36 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Northstar
 
-## Getting Started
+Northstar is a private trading operating system for manual futures planning, automated execution journaling, trade reconstruction, and evidence-based performance review.
 
-First, run the development server:
+## What works now
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Manual, modular futures plan editor
+- Live risk, cash-risk, reward/risk, and completeness calculations
+- Local draft persistence
+- Immutable plan locking with SHA-256 version snapshots
+- Supabase authentication and cloud persistence
+- Owner-scoped PostgreSQL schema with row-level security
+- Raw source records separated from normalized orders, executions, positions, and reconstructed trades
+- Data model for plan-to-trade links, reviews, and daily/weekly/monthly analysis
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Copy `.env.example` to `.env.local` and enter the Supabase project URL and publishable key.
+2. Install dependencies with `pnpm install`.
+3. Run `pnpm dev`.
+4. Open `http://localhost:3000`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Use `pnpm lint` and `pnpm build` before pushing changes.
 
-## Learn More
+## Database
 
-To learn more about Next.js, take a look at the following resources:
+Versioned SQL migrations live in `supabase/migrations`. Platform and broker source records are append-only through authenticated application permissions; derived trades can be rebuilt without rewriting raw history.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Connectors
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The app will use two independent ingestion paths:
 
-## Deploy on Vercel
+- Sierra Chart: a Windows-local connector that observes local trade activity and syncs normalized records.
+- Interactive Brokers: IB Gateway/TWS for live ingestion plus Flex Query/CSV for reconciliation and backfill.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Connector credentials and broker sessions must never be stored in the browser.
