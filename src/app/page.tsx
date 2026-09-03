@@ -12,6 +12,7 @@ type ModuleKey = "context" | "trigger" | "invalidation" | "events" | "scaling";
 type Draft = {
   instrument: string;
   session: string;
+  setup: string;
   direction: Direction;
   entry: string;
   stop: string;
@@ -29,7 +30,8 @@ type Draft = {
 
 const starterDraft: Draft = {
   instrument: "NQZ6",
-  session: "New York AM",
+  session: "Auto",
+  setup: "Opening pullback",
   direction: "Long",
   entry: "24,820.00",
   stop: "24,775.00",
@@ -53,10 +55,32 @@ const moduleMeta: Array<{ key: ModuleKey; label: string; helper: string }> = [
   { key: "scaling", label: "Scale plan", helper: "Partial exits and runner management" },
 ];
 
+const contracts = [
+  { symbol: "NQZ6", label: "NQ", size: "Mini" },
+  { symbol: "ESZ6", label: "ES", size: "Mini" },
+  { symbol: "CLV6", label: "CL", size: "Mini" },
+  { symbol: "GCZ6", label: "GC", size: "Mini" },
+  { symbol: "MNQZ6", label: "MNQ", size: "Micro" },
+  { symbol: "MESZ6", label: "MES", size: "Micro" },
+  { symbol: "MCLV6", label: "MCL", size: "Micro" },
+  { symbol: "MGCZ6", label: "MGC", size: "Micro" },
+];
+
+const setups = [
+  "Opening pullback",
+  "Opening drive",
+  "Failed auction",
+  "VWAP reclaim",
+  "Range break",
+  "Trend continuation",
+  "Reversal",
+  "Other",
+];
+
 const recentPlans = [
-  { date: "Sep 02", instrument: "ESZ6", direction: "Short", setup: "Failed auction", result: "+1.8R", status: "Followed" },
-  { date: "Sep 01", instrument: "NQZ6", direction: "Long", setup: "Opening drive", result: "+0.7R", status: "Followed" },
-  { date: "Aug 31", instrument: "CLV6", direction: "Long", setup: "Range reclaim", result: "−1.0R", status: "Deviated" },
+  { date: "Sep 02", time: "10:18", instrument: "ESZ6", direction: "Short", setup: "Failed auction", result: "+1.8R", pnl: "+$1,124", status: "Followed" },
+  { date: "Sep 01", time: "09:51", instrument: "NQZ6", direction: "Long", setup: "Opening pullback", result: "+0.7R", pnl: "+$680", status: "Followed" },
+  { date: "Aug 31", time: "11:06", instrument: "CLV6", direction: "Long", setup: "Range reclaim", result: "−1.0R", pnl: "−$510", status: "Deviated" },
 ];
 
 function Icon({ name }: { name: "grid" | "plan" | "journal" | "review" | "settings" | "shield" | "chevron" | "check" }) {
@@ -79,6 +103,7 @@ function Field({ label, children, helper }: { label: string; children: React.Rea
 
 export default function Home() {
   const [draft, setDraft] = useState<Draft>(starterDraft);
+  const [activeModule, setActiveModule] = useState<ModuleKey>("context");
   const [saved, setSaved] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [cloudState, setCloudState] = useState<"idle" | "saving" | "saved" | "local" | "error">("idle");
@@ -111,12 +136,14 @@ export default function Home() {
   const numericEntry = Number(draft.entry.replaceAll(",", ""));
   const numericStop = Number(draft.stop.replaceAll(",", ""));
   const numericTarget = Number(draft.target.replaceAll(",", ""));
-  const contracts = Number(draft.contracts) || 0;
+  const contractCount = Number(draft.contracts) || 0;
   const riskPoints = Math.abs(numericEntry - numericStop) || 0;
   const rewardPoints = Math.abs(numericTarget - numericEntry) || 0;
   const rr = riskPoints ? rewardPoints / riskPoints : 0;
-  const pointValue = draft.instrument.startsWith("NQ") ? 20 : draft.instrument.startsWith("ES") ? 50 : 10;
-  const cashRisk = riskPoints * pointValue * contracts;
+  const contractRoot = contracts.find(({ symbol }) => symbol === draft.instrument)?.label ?? "NQ";
+  const pointValues: Record<string, number> = { NQ: 20, MNQ: 2, ES: 50, MES: 5, CL: 1000, MCL: 100, GC: 100, MGC: 10 };
+  const pointValue = pointValues[contractRoot] ?? 1;
+  const cashRisk = riskPoints * pointValue * contractCount;
 
   const completion = useMemo(() => {
     const required = [draft.instrument, draft.entry, draft.stop, draft.target, draft.thesis];
@@ -155,7 +182,7 @@ export default function Home() {
         planned_entry: numericEntry,
         hard_stop: numericStop,
         primary_target: numericTarget,
-        planned_quantity: contracts,
+        planned_quantity: contractCount,
         max_risk_amount: cashRisk,
         thesis: next.thesis,
         planned_for: next.lockedAt,
@@ -186,95 +213,107 @@ export default function Home() {
     setCloudState(versionError ? "error" : "saved");
   };
 
+  const selectedModule = moduleMeta.find(({ key }) => key === activeModule) ?? moduleMeta[0];
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand"><div className="brand-mark"><span /></div><div><strong>Northstar</strong><small>Trading journal</small></div></div>
+        <div className="brand"><div className="brand-mark"><span /></div><strong>Northstar</strong></div>
         <nav className="nav" aria-label="Primary navigation">
-          <a href="#overview"><Icon name="grid" />Overview</a>
-          <a className="active" href="#plan"><Icon name="plan" />Futures plans<span className="nav-count">1</span></a>
-          <a href="#journal"><Icon name="journal" />Trade journal</a>
-          <a href="#reviews"><Icon name="review" />Reviews</a>
+          <a href="#overview"><Icon name="grid" /><span>Overview</span></a>
+          <a className="active" href="#plan"><Icon name="plan" /><span>Futures plan</span></a>
+          <a href="#journal"><Icon name="journal" /><span>Journal</span></a>
+          <a href="#reviews"><Icon name="review" /><span>Reviews</span></a>
         </nav>
         <div className="sidebar-spacer" />
-        <div className="connection-card"><div className="connection-head"><span className="pulse" />Sierra connector</div><strong>Waiting for POC</strong><small>Manual plans work now. Execution import connects later.</small></div>
-        <nav className="nav secondary"><a href="#settings"><Icon name="settings" />Settings</a></nav>
-        <div className="profile"><div className="avatar">ZW</div><div><strong>Zane</strong><small>Owner workspace</small></div><Icon name="chevron" /></div>
+        <div className="connector-state"><span className="pulse" /><div><strong>Sierra offline</strong><small>Manual planning available</small></div></div>
+        <nav className="nav secondary"><a href="#settings"><Icon name="settings" /><span>Settings</span></a></nav>
+        <Link className="profile" href={userEmail ? "#settings" : "/login"}><div className="avatar">ZW</div><div><strong>Zane</strong><small>{userEmail ?? "Sign in"}</small></div></Link>
       </aside>
 
       <main className="main">
         <header className="topbar">
-          <div><span className="eyebrow">Thursday · September 3</span><h1>Good morning, Zane.</h1><p>Plan the trade. Trade the plan. Review the evidence.</p></div>
-          <div className="top-actions"><Link className="ghost-button" href={userEmail ? "#settings" : "/login"}>{userEmail ? userEmail : "Sign in"}</Link><button className="ghost-button">Import activity</button><button className="primary-button" onClick={() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" })}>+ New futures plan</button></div>
+          <div><h1>Thursday&apos;s trade desk</h1><p>Weakness, edge, then the next plan.</p></div>
+          <div className="top-actions"><button className="ghost-button">Import</button><button className="primary-button" onClick={() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" })}>New plan</button></div>
         </header>
 
-        <section className="stats" id="overview" aria-label="Performance summary">
-          <article><span>Net P&amp;L · 30D</span><strong>$8,420.00</strong><small className="positive">↗ 14.2% vs prior period</small></article>
-          <article><span>Plan adherence</span><strong>86%</strong><div className="meter"><i style={{ width: "86%" }} /></div></article>
-          <article><span>Expectancy</span><strong>+0.64R</strong><small>42 completed futures trades</small></article>
-          <article><span>Profit factor</span><strong>1.92</strong><small>Average win 1.43R</small></article>
+        <section className="snapshot" id="overview" aria-label="Performance summary">
+          <div><span>30D P&amp;L</span><strong>$8,420</strong><small className="positive">+$1,044 WTD</small></div>
+          <div><span>Win rate</span><strong>61.9%</strong><small>26–16</small></div>
+          <div><span>Expectancy</span><strong>+0.64R</strong><small>42 trades</small></div>
+          <div><span>Plan adherence</span><strong>86%</strong><small>+8 pts</small></div>
+        </section>
+
+        <section className="signals" id="reviews" aria-label="Strengths and weaknesses">
+          <article className="signal leak-card"><div><span>Primary weakness · 7×</span><strong>Moving the stop after the first adverse rotation</strong><small>Hard stop becomes read-only after entry</small></div><b className="negative">−$1,240</b></article>
+          <article className="signal edge-card"><div><span>Repeatable edge · 14 trades</span><strong>NQ opening pullback after 09:45 ET</strong><small>Wait for the pullback; skip the opening chase</small></div><b className="positive">+0.91R</b></article>
         </section>
 
         <section className="workspace-grid">
-          <article className="panel plan-panel" id="plan">
-            <div className="panel-head">
-              <div><span className="kicker">MANUAL FUTURES PLAN</span><h2>Today&apos;s trade hypothesis</h2><p>Fill only what matters. Optional modules stay out of your way.</p></div>
-              <div className={`status-pill ${draft.lockedAt ? "locked" : ""}`}><span />{draft.lockedAt ? "Plan locked" : "Draft"}</div>
+          <article className="plan-panel" id="plan">
+            <div className="plan-head"><div><h2>Futures plan</h2><p>Manual, modular, locked before entry.</p></div><div className={`status-pill ${draft.lockedAt ? "locked" : ""}`}><span />{draft.lockedAt ? "Locked" : "Draft"}</div></div>
+
+            <div className="plan-controls">
+              <Field label="Contract">
+                <select value={draft.instrument} onChange={(event) => update("instrument", event.target.value)} disabled={Boolean(draft.lockedAt)}>
+                  <optgroup label="Minis">{contracts.filter(({ size }) => size === "Mini").map(({ symbol, label }) => <option key={symbol} value={symbol}>{label} · {symbol}</option>)}</optgroup>
+                  <optgroup label="Micros">{contracts.filter(({ size }) => size === "Micro").map(({ symbol, label }) => <option key={symbol} value={symbol}>{label} · {symbol}</option>)}</optgroup>
+                </select>
+              </Field>
+              <Field label="Setup"><select value={draft.setup} onChange={(event) => update("setup", event.target.value)} disabled={Boolean(draft.lockedAt)}>{setups.map((setup) => <option key={setup}>{setup}</option>)}</select></Field>
+              <Field label="Direction"><div className="segmented"><button className={draft.direction === "Long" ? "selected" : ""} aria-pressed={draft.direction === "Long"} onClick={() => update("direction", "Long")} disabled={Boolean(draft.lockedAt)}>Long</button><button className={draft.direction === "Short" ? "selected short" : ""} aria-pressed={draft.direction === "Short"} onClick={() => update("direction", "Short")} disabled={Boolean(draft.lockedAt)}>Short</button></div></Field>
             </div>
 
-            <div className="form-grid three">
-              <Field label="Contract"><select value={draft.instrument} onChange={(e) => update("instrument", e.target.value)} disabled={Boolean(draft.lockedAt)}><option>NQZ6</option><option>ESZ6</option><option>CLV6</option><option>GCZ6</option></select></Field>
-              <Field label="Session"><select value={draft.session} onChange={(e) => update("session", e.target.value)} disabled={Boolean(draft.lockedAt)}><option>New York AM</option><option>New York PM</option><option>London</option><option>Asia</option></select></Field>
-              <Field label="Direction"><div className="segmented"><button className={draft.direction === "Long" ? "selected" : ""} onClick={() => update("direction", "Long")} disabled={Boolean(draft.lockedAt)}>Long</button><button className={draft.direction === "Short" ? "selected short" : ""} onClick={() => update("direction", "Short")} disabled={Boolean(draft.lockedAt)}>Short</button></div></Field>
-            </div>
-
-            <Field label="Core thesis" helper="Write the reason before the outcome is known."><textarea rows={3} value={draft.thesis} onChange={(e) => update("thesis", e.target.value)} disabled={Boolean(draft.lockedAt)} /></Field>
+            <Field label="Trade thesis"><textarea rows={1} value={draft.thesis} onChange={(event) => update("thesis", event.target.value)} disabled={Boolean(draft.lockedAt)} /></Field>
 
             <div className="level-row">
-              <Field label="Planned entry"><input value={draft.entry} onChange={(e) => update("entry", e.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
-              <Field label="Hard stop"><input value={draft.stop} onChange={(e) => update("stop", e.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
-              <Field label="Primary target"><input value={draft.target} onChange={(e) => update("target", e.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
-              <Field label="Contracts"><input value={draft.contracts} onChange={(e) => update("contracts", e.target.value)} inputMode="numeric" disabled={Boolean(draft.lockedAt)} /></Field>
+              <Field label="Entry"><input value={draft.entry} onChange={(event) => update("entry", event.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
+              <Field label="Stop"><input value={draft.stop} onChange={(event) => update("stop", event.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
+              <Field label="Target"><input value={draft.target} onChange={(event) => update("target", event.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
+              <Field label="Qty"><input value={draft.contracts} onChange={(event) => update("contracts", event.target.value)} inputMode="numeric" disabled={Boolean(draft.lockedAt)} /></Field>
             </div>
 
-            <div className="risk-strip">
-              <div><span>Risk</span><strong>{riskPoints.toFixed(0)} pts</strong></div>
-              <div><span>Estimated cash risk</span><strong>${cashRisk.toLocaleString()}</strong></div>
-              <div><span>Reward / risk</span><strong>{rr.toFixed(2)}R</strong></div>
-              <div><span>Plan completeness</span><strong>{completion}%</strong></div>
+            <div className="plan-readout">
+              <span>Risk <strong>{riskPoints.toFixed(0)} pts</strong></span>
+              <span>R:R <strong>{rr.toFixed(2)}R</strong></span>
+              <span>Complete <strong>{completion}%</strong></span>
+              <span>Actual P&amp;L <strong className="muted-value">Pending import</strong></span>
             </div>
 
-            <div className="module-title"><div><h3>Plan modules</h3><p>Toggle modules on only when they improve the decision.</p></div><span>{Object.values(draft.modules).filter(Boolean).length} active</span></div>
-            <div className="module-list">
-              {moduleMeta.map(({ key, label, helper }) => (
-                <div className={`module ${draft.modules[key] ? "open" : ""}`} key={key}>
-                  <button className="module-toggle" onClick={() => update("modules", { ...draft.modules, [key]: !draft.modules[key] })} disabled={Boolean(draft.lockedAt)}>
-                    <span className={`switch ${draft.modules[key] ? "on" : ""}`}><i /></span><span><strong>{label}</strong><small>{helper}</small></span><Icon name="chevron" />
-                  </button>
-                  {draft.modules[key] ? <div className="module-body"><textarea rows={2} value={String(draft[key])} onChange={(e) => update(key, e.target.value)} disabled={Boolean(draft.lockedAt)} placeholder={key === "events" ? "Example: CPI at 08:30 ET — no new entry from 08:25–08:35" : "Add the detail that will matter during execution…"} /></div> : null}
+            <div className="module-head"><h3>Optional context</h3><span>{Object.values(draft.modules).filter(Boolean).length} on</span></div>
+            <div className="module-grid">
+              {moduleMeta.map(({ key, label }) => (
+                <div className={`module-chip ${activeModule === key ? "selected" : ""}`} key={key}>
+                  <button className="module-name" onClick={() => setActiveModule(key)} disabled={!draft.modules[key]}>{label}</button>
+                  <button className={`switch ${draft.modules[key] ? "on" : ""}`} aria-label={`${draft.modules[key] ? "Disable" : "Enable"} ${label}`} aria-pressed={draft.modules[key]} onClick={() => { update("modules", { ...draft.modules, [key]: !draft.modules[key] }); setActiveModule(key); }} disabled={Boolean(draft.lockedAt)}><i /></button>
                 </div>
               ))}
             </div>
+            <div className="module-editor">
+              <label htmlFor={`module-${selectedModule.key}`}>{selectedModule.label}</label>
+              {draft.modules[selectedModule.key] ? <input id={`module-${selectedModule.key}`} value={String(draft[selectedModule.key])} onChange={(event) => update(selectedModule.key, event.target.value)} disabled={Boolean(draft.lockedAt)} placeholder={selectedModule.key === "events" ? "CPI 08:30 · no entry 08:25–08:35" : selectedModule.helper} /> : <button onClick={() => update("modules", { ...draft.modules, [selectedModule.key]: true })}>Enable module</button>}
+            </div>
 
             <div className="plan-actions">
-              <div className="save-state"><Icon name="shield" /><span><strong>{draft.lockedAt ? cloudState === "saved" ? "Immutable snapshot saved to Northstar" : cloudState === "saving" ? "Saving immutable snapshot…" : cloudState === "error" ? "Cloud save failed · local copy is safe" : cloudState === "local" ? "Locked locally · sign in for cloud sync" : "Immutable snapshot saved" : saved ? "Draft saved locally" : "Changes not yet saved"}</strong><small>{draft.lockedAt ? new Date(draft.lockedAt).toLocaleString() : "Drafts remain on this device until locked."}</small></span></div>
-              {!draft.lockedAt ? <><button className="ghost-button" onClick={saveDraft}>Save draft</button><button className="primary-button" onClick={lockPlan}>Lock plan</button></> : <button className="ghost-button" onClick={() => update("lockedAt", undefined)}>Create revision</button>}
+              <div className="save-state"><Icon name="shield" /><span><strong>{draft.lockedAt ? cloudState === "saved" ? "Locked to Northstar" : cloudState === "saving" ? "Locking…" : cloudState === "error" ? "Cloud failed · local safe" : cloudState === "local" ? "Locked locally" : "Plan locked" : saved ? "Draft saved" : "Unsaved changes"}</strong><small>{draft.lockedAt ? new Date(draft.lockedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Local until locked"}</small></span></div>
+              {!draft.lockedAt ? <><button className="ghost-button" onClick={saveDraft}>Save</button><button className="primary-button" onClick={lockPlan}>Lock plan</button></> : <button className="ghost-button" onClick={() => update("lockedAt", undefined)}>Revise</button>}
             </div>
           </article>
 
-          <aside className="right-rail">
-            <article className="panel focus-card">
-              <div className="panel-head compact"><div><span className="kicker">TODAY&apos;S FOCUS</span><h2>Process over outcome</h2></div><div className="focus-score">3/4</div></div>
-              {["Plan exists before entry", "Risk is fixed before entry", "Wait for stated trigger", "No adding to a loser"].map((item, index) => <label className="check-row" key={item}><input type="checkbox" defaultChecked={index < 3}/><span><i><Icon name="check" /></i>{item}</span></label>)}
-            </article>
-            <article className="panel insight-card"><span className="kicker">COACHING SIGNAL</span><h3>Your best NQ window</h3><div className="insight-number">+0.91R</div><p>Average expectancy from 09:45–11:00 ET when a written plan was locked before entry.</p><a href="#reviews">View supporting trades <Icon name="chevron" /></a></article>
-            <article className="panel sync-card"><div className="sync-icon"><Icon name="shield" /></div><div><strong>Execution sync is separate</strong><p>Sierra fills will attach to this plan after the connector passes its proof of concept.</p></div></article>
-          </aside>
-        </section>
+          <aside className="evidence-rail">
+            <section className="recent" id="journal">
+              <div className="section-head"><h2>Recent trades</h2><button className="text-button" aria-label="Open full journal">Journal <Icon name="chevron" /></button></div>
+              <div className="trade-list">{recentPlans.map((row) => <article className="trade-row" key={`${row.date}-${row.instrument}`}><div><strong>{row.instrument}</strong><span>{row.date} · {row.setup}</span></div><div><b className={row.pnl.startsWith("+") ? "positive" : "negative"}>{row.pnl}</b><span>{row.status}</span></div></article>)}</div>
+            </section>
 
-        <section className="panel history" id="journal">
-          <div className="panel-head compact"><div><span className="kicker">RECENT FUTURES TRADES</span><h2>Plan-to-result history</h2></div><button className="text-button">Open journal <Icon name="chevron" /></button></div>
-          <div className="table-wrap"><table><thead><tr><th>Date</th><th>Contract</th><th>Direction</th><th>Setup</th><th>Result</th><th>Discipline</th></tr></thead><tbody>{recentPlans.map((row) => <tr key={`${row.date}-${row.instrument}`}><td>{row.date}</td><td><strong>{row.instrument}</strong></td><td><span className={`direction ${row.direction.toLowerCase()}`}>{row.direction}</span></td><td>{row.setup}</td><td className={row.result.startsWith("+") ? "positive" : "negative"}><strong>{row.result}</strong></td><td><span className={`discipline ${row.status.toLowerCase()}`}>{row.status}</span></td></tr>)}</tbody></table></div>
+            <section className="entry-gate">
+              <div className="section-head"><h2>Entry gate</h2><strong>3/4</strong></div>
+              <div className="check-grid">{["Plan before entry", "Risk fixed", "Trigger confirmed", "Never add to losers"].map((item, index) => <label className="check-row" key={item}><input type="checkbox" defaultChecked={index < 3}/><span><i><Icon name="check" /></i>{item}</span></label>)}</div>
+            </section>
+
+            <section className="session-pnl"><span>Today&apos;s actual P&amp;L</span><strong>+$1,044</strong><small>Imported executions only</small></section>
+            <section className="sync-row"><div className="sync-icon"><Icon name="shield" /></div><div><strong>Sierra sync pending</strong><p>Manual plan is fully available.</p></div></section>
+          </aside>
         </section>
       </main>
     </div>
