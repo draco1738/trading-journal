@@ -5,7 +5,8 @@ Northstar is a private trading operating system for manual futures planning, aut
 ## What works now
 
 - Manual, modular futures plan editor
-- Live risk, cash-risk, reward/risk, and completeness calculations
+- Live point-risk, reward/risk, completeness, and actual P&L readouts
+- Windows-local Sierra account detection with exact single-account activity-log scoping
 - Local draft persistence
 - Immutable plan locking with SHA-256 version snapshots
 - Supabase authentication and cloud persistence
@@ -34,3 +35,5 @@ The app will use two independent ingestion paths:
 - Interactive Brokers: IB Gateway/TWS for live ingestion plus Flex Query/CSV for reconciliation and backfill.
 
 Connector credentials and broker sessions must never be stored in the browser.
+
+Northstar never treats the Sierra `TradeActivityLogs` directory as one account. The local scope endpoint resolves exactly one current trade account (or the explicit `SIERRA_ACCOUNT_ID` override), accepts only filenames ending in `.[current-account].data`, and rejects `None`, simulated, and every other account file before ingestion.

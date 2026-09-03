@@ -9,6 +9,13 @@ import { createClient } from "@/lib/supabase/client";
 type Direction = "Long" | "Short";
 type ModuleKey = "context" | "trigger" | "invalidation" | "events" | "scaling";
 
+type SierraAccountScope = {
+  available: boolean;
+  accountId?: string;
+  matchingActivityLogs?: number;
+  ignoredActivityLogs?: number;
+};
+
 type Draft = {
   instrument: string;
   session: string;
@@ -77,12 +84,6 @@ const setups = [
   "Other",
 ];
 
-const recentPlans = [
-  { date: "Sep 02", time: "10:18", instrument: "ESZ6", direction: "Short", setup: "Failed auction", result: "+1.8R", pnl: "+$1,124", status: "Followed" },
-  { date: "Sep 01", time: "09:51", instrument: "NQZ6", direction: "Long", setup: "Opening pullback", result: "+0.7R", pnl: "+$680", status: "Followed" },
-  { date: "Aug 31", time: "11:06", instrument: "CLV6", direction: "Long", setup: "Range reclaim", result: "−1.0R", pnl: "−$510", status: "Deviated" },
-];
-
 function Icon({ name }: { name: "grid" | "plan" | "journal" | "review" | "settings" | "shield" | "chevron" | "check" }) {
   const paths = {
     grid: <><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></>,
@@ -107,6 +108,7 @@ export default function Home() {
   const [saved, setSaved] = useState(false);
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [cloudState, setCloudState] = useState<"idle" | "saving" | "saved" | "local" | "error">("idle");
+  const [sierraScope, setSierraScope] = useState<SierraAccountScope | null>(null);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -126,6 +128,22 @@ export default function Home() {
       window.clearTimeout(timer);
       authListener.subscription.unsubscribe();
     };
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+
+    void fetch("/api/sierra/account-scope", { cache: "no-store", signal: controller.signal })
+      .then(async (response) => {
+        const data = await response.json() as SierraAccountScope;
+        setSierraScope(data);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        setSierraScope({ available: false });
+      });
+
+    return () => controller.abort();
   }, []);
 
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => {
@@ -214,6 +232,7 @@ export default function Home() {
   };
 
   const selectedModule = moduleMeta.find(({ key }) => key === activeModule) ?? moduleMeta[0];
+  const lucidAccountLabel = sierraScope?.accountId?.split("-").at(-1) ?? "Detecting…";
 
   return (
     <div className="app-shell">
@@ -226,7 +245,7 @@ export default function Home() {
           <a href="#reviews"><Icon name="review" /><span>Reviews</span></a>
         </nav>
         <div className="sidebar-spacer" />
-        <div className="connector-state"><span className="pulse" /><div><strong>Sierra offline</strong><small>Manual planning available</small></div></div>
+        <div className="connector-state"><span className={`pulse ${sierraScope?.available ? "active" : ""}`} /><div><strong>{sierraScope?.available ? lucidAccountLabel : "Sierra scope"}</strong><small>{sierraScope?.available ? "Current Lucid only" : sierraScope ? "Account unavailable" : "Detecting account"}</small></div></div>
         <nav className="nav secondary"><a href="#settings"><Icon name="settings" /><span>Settings</span></a></nav>
         <Link className="profile" href={userEmail ? "#settings" : "/login"}><div className="avatar">ZW</div><div><strong>Zane</strong><small>{userEmail ?? "Sign in"}</small></div></Link>
       </aside>
@@ -234,19 +253,19 @@ export default function Home() {
       <main className="main">
         <header className="topbar">
           <div><h1>Thursday&apos;s trade desk</h1><p>Weakness, edge, then the next plan.</p></div>
-          <div className="top-actions"><button className="ghost-button">Import</button><button className="primary-button" onClick={() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" })}>New plan</button></div>
+          <div className="top-actions"><div className={`account-scope ${sierraScope?.available ? "active" : ""}`} title={sierraScope?.accountId}><span>Current Lucid</span><strong>{lucidAccountLabel}</strong></div><button className="ghost-button" disabled={!sierraScope?.available}>Import</button><button className="primary-button" onClick={() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" })}>New plan</button></div>
         </header>
 
         <section className="snapshot" id="overview" aria-label="Performance summary">
-          <div><span>30D P&amp;L</span><strong>$8,420</strong><small className="positive">+$1,044 WTD</small></div>
-          <div><span>Win rate</span><strong>61.9%</strong><small>26–16</small></div>
-          <div><span>Expectancy</span><strong>+0.64R</strong><small>42 trades</small></div>
-          <div><span>Plan adherence</span><strong>86%</strong><small>+8 pts</small></div>
+          <div><span>30D P&amp;L</span><strong>—</strong><small>{sierraScope?.available ? `${lucidAccountLabel} only` : "No account"}</small></div>
+          <div><span>Win rate</span><strong>—</strong><small>No scoped trades</small></div>
+          <div><span>Expectancy</span><strong>—</strong><small>No scoped trades</small></div>
+          <div><span>Plan adherence</span><strong>—</strong><small>No scoped trades</small></div>
         </section>
 
         <section className="signals" id="reviews" aria-label="Strengths and weaknesses">
-          <article className="signal leak-card"><div><span>Primary weakness · 7×</span><strong>Moving the stop after the first adverse rotation</strong><small>Hard stop becomes read-only after entry</small></div><b className="negative">−$1,240</b></article>
-          <article className="signal edge-card"><div><span>Repeatable edge · 14 trades</span><strong>NQ opening pullback after 09:45 ET</strong><small>Wait for the pullback; skip the opening chase</small></div><b className="positive">+0.91R</b></article>
+          <article className="signal leak-card"><div><span>Primary weakness</span><strong>Waiting for current-account evidence</strong><small>Other Lucid accounts are now excluded from analysis</small></div><b className="negative">—</b></article>
+          <article className="signal edge-card"><div><span>Repeatable edge</span><strong>Waiting for current-account evidence</strong><small>Patterns will use {lucidAccountLabel} only</small></div><b className="positive">—</b></article>
         </section>
 
         <section className="workspace-grid">
@@ -303,7 +322,7 @@ export default function Home() {
           <aside className="evidence-rail">
             <section className="recent" id="journal">
               <div className="section-head"><h2>Recent trades</h2><button className="text-button" aria-label="Open full journal">Journal <Icon name="chevron" /></button></div>
-              <div className="trade-list">{recentPlans.map((row) => <article className="trade-row" key={`${row.date}-${row.instrument}`}><div><strong>{row.instrument}</strong><span>{row.date} · {row.setup}</span></div><div><b className={row.pnl.startsWith("+") ? "positive" : "negative"}>{row.pnl}</b><span>{row.status}</span></div></article>)}</div>
+              <div className="journal-empty"><strong>No scoped trades yet</strong><p>{sierraScope?.available ? `${sierraScope.matchingActivityLogs ?? 0} ${lucidAccountLabel} activity logs are ready for the connector.` : "Connect the active Sierra account to begin."}</p></div>
             </section>
 
             <section className="entry-gate">
@@ -311,7 +330,7 @@ export default function Home() {
               <div className="check-grid">{["Plan before entry", "Risk fixed", "Trigger confirmed", "Never add to losers"].map((item, index) => <label className="check-row" key={item}><input type="checkbox" defaultChecked={index < 3}/><span><i><Icon name="check" /></i>{item}</span></label>)}</div>
             </section>
 
-            <section className="session-pnl"><span>Today&apos;s actual P&amp;L</span><strong>+$1,044</strong><small>Imported executions only</small></section>
+            <section className="session-pnl"><span>Today&apos;s actual P&amp;L</span><strong>—</strong><small>{sierraScope?.available ? `${lucidAccountLabel} only · no executions imported` : "Waiting for current account"}</small></section>
             <section className="sync-row"><div className="sync-icon"><Icon name="shield" /></div><div><strong>Sierra sync pending</strong><p>Manual plan is fully available.</p></div></section>
           </aside>
         </section>
