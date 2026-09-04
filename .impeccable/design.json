@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-03T20:00:00.379-04:00",
+  "title": "Design System: Northstar",
+  "extensions": {
+    "colorMeta": {
+      "frame": {
+        "role": "neutral",
+        "displayName": "Ink Frame",
+        "canonical": "#07080a",
+        "tonalRamp": ["oklch(15% 0.0051 262.3)", "oklch(25% 0.0051 262.3)", "oklch(35% 0.0051 262.3)", "oklch(45% 0.0051 262.3)", "oklch(55% 0.0051 262.3)", "oklch(65% 0.0051 262.3)", "oklch(80% 0.0051 262.3)", "oklch(95% 0.0051 262.3)"]
+      },
+      "rail": {
+        "role": "neutral",
+        "displayName": "Rail Black",
+        "canonical": "#090b0e",
+        "tonalRamp": ["oklch(15% 0.0073 258.0)", "oklch(25% 0.0073 258.0)", "oklch(35% 0.0073 258.0)", "oklch(45% 0.0073 258.0)", "oklch(55% 0.0073 258.0)", "oklch(65% 0.0073 258.0)", "oklch(80% 0.0073 258.0)", "oklch(95% 0.0073 258.0)"]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel Graphite",
+        "canonical": "#0e1116",
+        "tonalRamp": ["oklch(15% 0.0114 260.6)", "oklch(25% 0.0114 260.6)", "oklch(35% 0.0114 260.6)", "oklch(45% 0.0114 260.6)", "oklch(55% 0.0114 260.6)", "oklch(65% 0.0114 260.6)", "oklch(80% 0.0114 260.6)", "oklch(95% 0.0114 260.6)"]
+      },
+      "control": {
+        "role": "neutral",
+        "displayName": "Control Black",
+        "canonical": "#0a0d12",
+        "tonalRamp": ["oklch(15% 0.0118 260.6)", "oklch(25% 0.0118 260.6)", "oklch(35% 0.0118 260.6)", "oklch(45% 0.0118 260.6)", "oklch(55% 0.0118 260.6)", "oklch(65% 0.0118 260.6)", "oklch(80% 0.0118 260.6)", "oklch(95% 0.0118 260.6)"]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Hairline Graphite",
+        "canonical": "#242933",
+        "tonalRamp": ["oklch(15% 0.0198 264.2)", "oklch(25% 0.0198 264.2)", "oklch(35% 0.0198 264.2)", "oklch(45% 0.0198 264.2)", "oklch(55% 0.0198 264.2)", "oklch(65% 0.0198 264.2)", "oklch(80% 0.0198 264.2)", "oklch(95% 0.0198 264.2)"]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Strong Hairline",
+        "canonical": "#363d49",
+        "tonalRamp": ["oklch(15% 0.0229 261.2)", "oklch(25% 0.0229 261.2)", "oklch(35% 0.0229 261.2)", "oklch(45% 0.0229 261.2)", "oklch(55% 0.0229 261.2)", "oklch(65% 0.0229 261.2)", "oklch(80% 0.0229 261.2)", "oklch(95% 0.0229 261.2)"]
+      },
+      "text": {
+        "role": "neutral",
+        "displayName": "Cool White",
+        "canonical": "#f4f6f8",
+        "tonalRamp": ["oklch(15% 0.0034 247.9)", "oklch(25% 0.0034 247.9)", "oklch(35% 0.0034 247.9)", "oklch(45% 0.0034 247.9)", "oklch(55% 0.0034 247.9)", "oklch(65% 0.0034 247.9)", "oklch(80% 0.0034 247.9)", "oklch(95% 0.0034 247.9)"]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted Steel",
+        "canonical": "#9aa2ad",
+        "tonalRamp": ["oklch(15% 0.0184 256.3)", "oklch(25% 0.0184 256.3)", "oklch(35% 0.0184 256.3)", "oklch(45% 0.0184 256.3)", "oklch(55% 0.0184 256.3)", "oklch(65% 0.0184 256.3)", "oklch(80% 0.0184 256.3)", "oklch(95% 0.0184 256.3)"]
+      },
+      "dim": {
+        "role": "neutral",
+        "displayName": "Dim Steel",
+        "canonical": "#858e9a",
+        "tonalRamp": ["oklch(15% 0.0208 255.6)", "oklch(25% 0.0208 255.6)", "oklch(35% 0.0208 255.6)", "oklch(45% 0.0208 255.6)", "oklch(55% 0.0208 255.6)", "oklch(65% 0.0208 255.6)", "oklch(80% 0.0208 255.6)", "oklch(95% 0.0208 255.6)"]
+      },
+      "cobalt": {
+        "role": "primary",
+        "displayName": "Selection Cobalt",
+        "canonical": "#5b8cff",
+        "tonalRamp": ["oklch(15% 0.1786 264.6)", "oklch(25% 0.1786 264.6)", "oklch(35% 0.1786 264.6)", "oklch(45% 0.1786 264.6)", "oklch(55% 0.1786 264.6)", "oklch(65% 0.1786 264.6)", "oklch(80% 0.1786 264.6)", "oklch(95% 0.1786 264.6)"]
+      },
+      "cobalt-strong": {
+        "role": "primary",
+        "displayName": "Luminous Cobalt",
+        "canonical": "#79a2ff",
+        "tonalRamp": ["oklch(15% 0.1433 265.0)", "oklch(25% 0.1433 265.0)", "oklch(35% 0.1433 265.0)", "oklch(45% 0.1433 265.0)", "oklch(55% 0.1433 265.0)", "oklch(65% 0.1433 265.0)", "oklch(80% 0.1433 265.0)", "oklch(95% 0.1433 265.0)"]
+      },
+      "cobalt-soft": {
+        "role": "primary",
+        "displayName": "Cobalt Wash",
+        "canonical": "#17233c",
+        "tonalRamp": ["oklch(15% 0.0502 263.8)", "oklch(25% 0.0502 263.8)", "oklch(35% 0.0502 263.8)", "oklch(45% 0.0502 263.8)", "oklch(55% 0.0502 263.8)", "oklch(65% 0.0502 263.8)", "oklch(80% 0.0502 263.8)", "oklch(95% 0.0502 263.8)"]
+      },
+      "action-cobalt": {
+        "role": "primary",
+        "displayName": "Action Cobalt",
+        "canonical": "#416fda",
+        "tonalRamp": ["oklch(15% 0.1717 264.2)", "oklch(25% 0.1717 264.2)", "oklch(35% 0.1717 264.2)", "oklch(45% 0.1717 264.2)", "oklch(55% 0.1717 264.2)", "oklch(65% 0.1717 264.2)", "oklch(80% 0.1717 264.2)", "oklch(95% 0.1717 264.2)"]
+      },
+      "outcome-green": {
+        "role": "semantic-positive",
+        "displayName": "Verified Green",
+        "canonical": "#62c990",
+        "tonalRamp": ["oklch(15% 0.1278 157.1)", "oklch(25% 0.1278 157.1)", "oklch(35% 0.1278 157.1)", "oklch(45% 0.1278 157.1)", "oklch(55% 0.1278 157.1)", "oklch(65% 0.1278 157.1)", "oklch(80% 0.1278 157.1)", "oklch(95% 0.1278 157.1)"]
+      },
+      "outcome-red": {
+        "role": "semantic-negative",
+        "displayName": "Risk Red",
+        "canonical": "#f07178",
+        "tonalRamp": ["oklch(15% 0.1567 18.6)", "oklch(25% 0.1567 18.6)", "oklch(35% 0.1567 18.6)", "oklch(45% 0.1567 18.6)", "oklch(55% 0.1567 18.6)", "oklch(65% 0.1567 18.6)", "oklch(80% 0.1567 18.6)", "oklch(95% 0.1567 18.6)"]
+      },
+      "pending-amber": {
+        "role": "semantic-warning",
+        "displayName": "Pending Amber",
+        "canonical": "#d9ad5b",
+        "tonalRamp": ["oklch(15% 0.1127 81.3)", "oklch(25% 0.1127 81.3)", "oklch(35% 0.1127 81.3)", "oklch(45% 0.1127 81.3)", "oklch(55% 0.1127 81.3)", "oklch(65% 0.1127 81.3)", "oklch(80% 0.1127 81.3)", "oklch(95% 0.1127 81.3)"]
+      }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Workspace Headline", "purpose": "Primary operating-surface headings." },
+      "title": { "displayName": "Panel Title", "purpose": "Compact pane and module headings." },
+      "body": { "displayName": "Application Base", "purpose": "Inherited application text baseline." },
+      "micro": { "displayName": "Operational Copy", "purpose": "Supporting copy, field values, and compact controls." },
+      "label": { "displayName": "Ledger Label", "purpose": "Uppercase metadata, field names, and measurement keys." },
+      "numeric": { "displayName": "Tabular Figure", "purpose": "Comparable prices, P&L, ratios, counts, and identifiers." }
+    },
+    "shadows": [
+      { "name": "signal-pending", "value": "0 2px 8px rgba(217, 173, 91, .26)", "purpose": "Tiny pending-connectivity indicators only." },
+      { "name": "signal-online", "value": "0 2px 8px rgba(98, 201, 144, .24)", "purpose": "Tiny live-connectivity indicators only." },
+      { "name": "action-lift", "value": "0 3px 10px rgba(39, 78, 165, .22)", "purpose": "The filled cobalt primary action." },
+      { "name": "isolated-surface", "value": "0 18px 50px rgba(0, 0, 0, .32)", "purpose": "Authentication and similarly detached modal surfaces." }
+    ],
+    "motion": [
+      { "name": "state-fast", "value": "160ms ease", "purpose": "Hover, field, navigation, and switch state changes." },
+      { "name": "module-swap", "value": "180ms cubic-bezier(.16, 1, .3, 1)", "purpose": "Keyed opacity, clip, and 2px settle when the active module editor changes." },
+      { "name": "reduced-motion", "value": "0.01ms", "purpose": "Collapse transitions and remove smooth scrolling when reduced motion is requested." }
+    ],
+    "breakpoints": [
+      { "name": "compact-desktop", "value": "980px" },
+      { "name": "mobile-rail", "value": "760px" },
+      { "name": "narrow-mobile", "value": "540px" },
+      { "name": "low-height-desktop", "value": "620px height (min-width 761px)" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single committed next action in a local decision cluster.",
+      "html": "<button class=\"ds-button-primary\">Lock plan</button>",
+      "css": ".ds-button-primary { height: 28px; padding: 0 10px; border: 1px solid #6f98f8; border-radius: 4px; color: #fff; background: #416fda; box-shadow: 0 3px 10px rgba(39, 78, 165, .22); font-family: var(--font-geist-sans, \"Segoe UI\", sans-serif); font-size: 9px; font-weight: 680; cursor: pointer; } .ds-button-primary:hover { border-color: #91b0fa; background: #4e7de5; } .ds-button-primary:active { background: #365fc0; } .ds-button-primary:focus-visible { outline: 2px solid var(--blue-strong, #79a2ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "A compact secondary or reversible action that does not compete with the primary.",
+      "html": "<button class=\"ds-button-quiet\">Save draft</button>",
+      "css": ".ds-button-quiet { height: 28px; padding: 0 10px; border: 1px solid var(--line-strong, #363d49); border-radius: 4px; color: #c6ccd5; background: #11151b; font-family: var(--font-geist-sans, \"Segoe UI\", sans-serif); font-size: 9px; font-weight: 680; cursor: pointer; } .ds-button-quiet:hover { border-color: #505967; color: #fff; background: #171c23; } .ds-button-quiet:active { background: var(--control, #0a0d12); } .ds-button-quiet:focus-visible { outline: 2px solid var(--blue-strong, #79a2ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Ledger Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "The standard compact field for plan values and supporting evidence.",
+      "html": "<label class=\"ds-field\"><span>Entry</span><input value=\"24516.25\" aria-label=\"Entry\"></label>",
+      "css": ".ds-field { display: grid; gap: 3px; color: #a7afba; font-family: var(--font-geist-sans, \"Segoe UI\", sans-serif); font-size: 8px; font-weight: 720; letter-spacing: .045em; text-transform: uppercase; } .ds-field input { width: 100%; min-width: 0; height: 29px; padding: 0 8px; border: 1px solid #303744; border-radius: 4px; outline: 0; color: var(--text, #f4f6f8); background: var(--control, #0a0d12); caret-color: var(--blue-strong, #79a2ff); font-family: var(--font-geist-mono, monospace); font-size: 9px; font-variant-numeric: tabular-nums; transition: border-color 160ms ease, background 160ms ease; } .ds-field input:hover { border-color: #454e5c; } .ds-field input:focus { border-color: var(--blue, #5b8cff); background: #0d121b; } .ds-field input:focus-visible { outline: 2px solid var(--blue-strong, #79a2ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Active Tool Navigation",
+      "kind": "nav",
+      "refersTo": "navigation-active",
+      "description": "The selected destination inside the desktop tool rail.",
+      "html": "<nav class=\"ds-tool-rail\" aria-label=\"Workspace\"><a class=\"ds-tool-active\" href=\"#\" aria-label=\"Plan\"><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M9 11l3 3L22 4\"/><path d=\"M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11\"/></svg></a></nav>",
+      "css": ".ds-tool-rail { display: grid; width: 52px; padding: 8px 6px; place-items: center; border-right: 1px solid var(--line, #242933); background: var(--rail, #090b0e); } .ds-tool-active { position: relative; display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid #2f3950; border-radius: 5px; color: #b9ceff; background: var(--blue-soft, #17233c); text-decoration: none; transition: color 160ms ease, background 160ms ease, border-color 160ms ease; } .ds-tool-active::after { content: \"\"; position: absolute; left: -7px; width: 2px; height: 18px; border-radius: 2px; background: var(--blue, #5b8cff); } .ds-tool-active svg { width: 16px; height: 16px; } .ds-tool-active:focus-visible { outline: 2px solid var(--blue-strong, #79a2ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Pill",
+      "kind": "chip",
+      "refersTo": "status-pill",
+      "description": "A terse plan or connectivity state with a restrained semantic dot.",
+      "html": "<span class=\"ds-status-pill\"><i></i>Draft</span>",
+      "css": ".ds-status-pill { display: inline-flex; align-items: center; gap: 5px; height: 19px; padding: 0 7px; border: 1px solid #34466f; border-radius: 3px; color: #a9c0f7; background: #151d2e; font-family: var(--font-geist-sans, \"Segoe UI\", sans-serif); font-size: 8px; font-weight: 760; letter-spacing: .05em; text-transform: uppercase; } .ds-status-pill i { width: 4px; height: 4px; border-radius: 50%; background: currentColor; }"
+    },
+    {
+      "name": "Ledger Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "The flat structural container for tightly related operational evidence.",
+      "html": "<section class=\"ds-ledger-panel\"><header><strong>Panel title</strong><span>Online</span></header><p>Supporting evidence stays close to the decision.</p></section>",
+      "css": ".ds-ledger-panel { width: 260px; padding: 9px 10px; border: 1px solid var(--line, #242933); border-radius: 5px; color: var(--text, #f4f6f8); background: var(--panel, #0e1116); font-family: var(--font-geist-sans, \"Segoe UI\", sans-serif); } .ds-ledger-panel header { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .ds-ledger-panel strong { font-size: 10px; font-weight: 670; letter-spacing: -.02em; } .ds-ledger-panel span { color: var(--green, #62c990); font-size: 8px; font-weight: 720; letter-spacing: .05em; text-transform: uppercase; } .ds-ledger-panel p { margin: 7px 0 0; padding-top: 7px; border-top: 1px solid var(--line, #242933); color: var(--dim, #858e9a); font-size: 9px; line-height: 1.45; }"
+    },
+    {
+      "name": "Segmented Control",
+      "kind": "custom",
+      "refersTo": "input",
+      "description": "A binary selection inside the same compact frame used by fields.",
+      "html": "<div class=\"ds-segmented\" role=\"group\" aria-label=\"Direction\"><button class=\"ds-selected\" aria-pressed=\"true\">Long</button><button aria-pressed=\"false\">Short</button></div>",
+      "css": ".ds-segmented { display: grid; grid-template-columns: 1fr 1fr; width: 180px; height: 29px; padding: 2px; border: 1px solid #303744; border-radius: 4px; background: var(--control, #0a0d12); } .ds-segmented button { border: 0; border-radius: 3px; color: #747d89; background: transparent; font-family: var(--font-geist-sans, \"Segoe UI\", sans-serif); font-size: 8px; font-weight: 680; cursor: pointer; } .ds-segmented button:hover { color: #c8ced7; } .ds-segmented button.ds-selected { color: #fff; background: #416fda; } .ds-segmented button:focus-visible { outline: 2px solid var(--blue-strong, #79a2ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Selected Module Tab",
+      "kind": "custom",
+      "refersTo": "navigation-active",
+      "description": "The selected optional planning module with its compact enabled switch.",
+      "html": "<div class=\"ds-module-tab\"><button class=\"ds-module-name\">Context</button><button class=\"ds-switch\" aria-label=\"Disable Context\" aria-pressed=\"true\"><i></i></button></div>",
+      "css": ".ds-module-tab { display: flex; align-items: center; justify-content: space-between; width: 150px; height: 28px; padding: 0 5px 0 7px; border: 1px solid #3f5f9f; border-radius: 4px; background: var(--blue-soft, #17233c); } .ds-module-tab:hover { border-color: var(--blue, #5b8cff); } .ds-module-name { min-width: 0; padding: 0; overflow: hidden; border: 0; color: #dbe6ff; background: transparent; font-family: var(--font-geist-sans, \"Segoe UI\", sans-serif); font-size: 8px; font-weight: 630; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; } .ds-switch { position: relative; width: 18px; height: 11px; padding: 0; border: 1px solid #4d6fae; border-radius: 8px; background: #284779; cursor: pointer; } .ds-switch i { position: absolute; top: 2px; left: 9px; width: 5px; height: 5px; border-radius: 50%; background: #dce7ff; transition: left 160ms ease, background 160ms ease; } .ds-module-name:focus-visible, .ds-switch:focus-visible { outline: 2px solid var(--blue-strong, #79a2ff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Keyed Module Editor",
+      "kind": "custom",
+      "refersTo": "input",
+      "description": "The signature fixed-height editor that re-enters when its keyed module changes.",
+      "html": "<div class=\"ds-module-editor\"><label for=\"ds-module-value\">Context</label><input id=\"ds-module-value\" value=\"Acceptance above value\"></div>",
+      "css": ".ds-module-editor { display: grid; grid-template-columns: 106px minmax(0, 1fr); align-items: center; gap: 7px; min-width: 280px; animation: ds-module-swap 180ms cubic-bezier(.16, 1, .3, 1); } .ds-module-editor label { overflow: hidden; color: var(--muted, #9aa2ad); font-family: var(--font-geist-sans, \"Segoe UI\", sans-serif); font-size: 8px; font-weight: 620; text-overflow: ellipsis; white-space: nowrap; } .ds-module-editor input { min-width: 0; height: 29px; padding: 0 8px; border: 1px solid #303744; border-radius: 4px; outline: 0; color: var(--text, #f4f6f8); background: var(--control, #0a0d12); font-family: var(--font-geist-sans, \"Segoe UI\", sans-serif); font-size: 8px; transition: border-color 160ms ease, background 160ms ease; } .ds-module-editor input:hover { border-color: #454e5c; } .ds-module-editor input:focus { border-color: var(--blue, #5b8cff); background: #0d121b; } .ds-module-editor input:focus-visible { outline: 2px solid var(--blue-strong, #79a2ff); outline-offset: 2px; } @keyframes ds-module-swap { from { opacity: .72; clip-path: inset(0 18px 0 0); transform: translateY(2px); } to { opacity: 1; clip-path: inset(0 0 0 0); transform: translateY(0); } } @media (prefers-reduced-motion: reduce) { .ds-module-editor { animation-duration: .01ms; } .ds-module-editor input { transition-duration: .01ms; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Order-Ticket Ledger",
+    "overview": "Northstar should feel like a trusted trading instrument: ink-black, compact, exact, and built around evidence rather than presentation. Graphite panes, cool type, cobalt interaction states, and hairline rules create the calm density of an order ticket crossed with an auditable ledger.\n\nThe system is deliberately code-led and operational. Brand appears through proportion, restraint, tabular figures, a keyed module swap, and the three-stroke Northstar mark—not through gradients, decorative illustration, or a generic field of floating dashboard cards.",
+    "keyCharacteristics": [
+      "Ink-black frame with tightly stepped graphite work surfaces.",
+      "Cobalt owns selection, focus, enabled states, and the primary next action.",
+      "Semantic colors stay sparse and carry evidence, risk, outcome, or connectivity meaning.",
+      "One-pixel separators and compact 3–6px corners establish ledger structure.",
+      "Geist Mono and tabular figures make numerical evidence scan as one aligned system.",
+      "Dense desktop chrome remains usable at 110% browser zoom and adapts without losing hierarchy."
+    ],
+    "rules": [
+      { "name": "The Outcome Color Rule", "body": "Cobalt owns interaction. Green, red, and amber are semantic signals only; never use them as general decoration or to make ordinary chrome feel lively.", "section": "colors" },
+      { "name": "The Ledger Figure Rule", "body": "Any value meant to be compared across rows, time, or state uses Geist Mono with tabular figures; prose and pending-state language stay in Geist Sans.", "section": "typography" },
+      { "name": "The First-Viewport Rule", "body": "At desktop width, protect one compact operating viewport—including at 110% browser zoom—before adding vertical space; optional detail should swap, collapse, or flow responsively instead of permanently extending the desk.", "section": "layout" },
+      { "name": "The Flat-by-Default Rule", "body": "If a one-pixel line and tonal step can express hierarchy, do not add a shadow.", "section": "elevation" },
+      { "name": "The Shallow-Corner Rule", "body": "Do not introduce soft 12–24px product-card radii; Northstar's authority depends on compact 3–6px geometry.", "section": "shapes" },
+      { "name": "The Fixed-Editor Rule", "body": "Optional modules change the content of one stable editor row; they do not accumulate into a vertical form stack.", "section": "components" }
+    ],
+    "dos": [
+      "Do preserve ink-to-graphite separation with one-pixel hairlines before adding shadow.",
+      "Do use cobalt for focus, selection, enabled state, and the primary next action.",
+      "Do set prices, P&L, ratios, counts, and account identifiers in Geist Mono with tabular figures.",
+      "Do keep desktop workspace chrome at a 52px rail, a 40px command bar, and an 8px working rhythm.",
+      "Do re-key the active module editor and use the 180ms swap while honoring reduced motion.",
+      "Do verify dense desktop views at 110% browser zoom and in the 620px low-height mode."
+    ],
+    "donts": [
+      "Don't turn panes into floating rounded cards; standard containers are flat 5px ledger surfaces.",
+      "Don't use green, red, or amber as decorative accents or substitutes for cobalt.",
+      "Don't introduce gradients, glass, blur, or deep shadows into the operating workspace.",
+      "Don't enlarge routine labels and controls into consumer-dashboard proportions; calibrated density is part of the product.",
+      "Don't stack every optional module vertically; one fixed editor replaces another."
+    ]
+  }
+}

@@ -234,107 +234,140 @@ export default function Home() {
   const selectedModule = moduleMeta.find(({ key }) => key === activeModule) ?? moduleMeta[0];
   const lucidAccountLabel = sierraScope?.accountId?.split("-").at(-1) ?? "Detecting…";
 
+  const startNewPlan = () => {
+    setDraft({ ...starterDraft, lockedAt: undefined });
+    setSaved(false);
+    setCloudState("idle");
+    window.requestAnimationFrame(() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" }));
+  };
+
   return (
     <div className="app-shell">
-      <aside className="sidebar">
-        <div className="brand"><div className="brand-mark"><span /></div><strong>Northstar</strong></div>
-        <nav className="nav" aria-label="Primary navigation">
-          <a href="#overview"><Icon name="grid" /><span>Overview</span></a>
-          <a className="active" href="#plan"><Icon name="plan" /><span>Futures plan</span></a>
-          <a href="#journal"><Icon name="journal" /><span>Journal</span></a>
-          <a href="#reviews"><Icon name="review" /><span>Reviews</span></a>
+      <aside className="tool-rail">
+        <a className="brand-mark" href="#overview" aria-label="Northstar overview"><span /></a>
+        <nav className="rail-nav" aria-label="Primary navigation">
+          <a href="#overview" aria-label="Overview" title="Overview"><Icon name="grid" /></a>
+          <a className="active" href="#plan" aria-label="Futures plan" title="Futures plan"><Icon name="plan" /></a>
+          <a href="#journal" aria-label="Journal" title="Journal"><Icon name="journal" /></a>
+          <a href="#reviews" aria-label="Reviews" title="Reviews"><Icon name="review" /></a>
         </nav>
-        <div className="sidebar-spacer" />
-        <div className="connector-state"><span className={`pulse ${sierraScope?.available ? "active" : ""}`} /><div><strong>{sierraScope?.available ? lucidAccountLabel : "Sierra scope"}</strong><small>{sierraScope?.available ? "Current Lucid only" : sierraScope ? "Account unavailable" : "Detecting account"}</small></div></div>
-        <nav className="nav secondary"><a href="#settings"><Icon name="settings" /><span>Settings</span></a></nav>
-        <Link className="profile" href={userEmail ? "#settings" : "/login"}><div className="avatar">ZW</div><div><strong>Zane</strong><small>{userEmail ?? "Sign in"}</small></div></Link>
+        <div className="rail-spacer" />
+        <div className="rail-sync" title={sierraScope?.available ? `${lucidAccountLabel} · current Lucid account` : "Sierra account unavailable"}><span className={`pulse ${sierraScope?.available ? "active" : ""}`} /></div>
+        <a className="rail-control" href="#settings" aria-label="Settings" title="Settings"><Icon name="settings" /></a>
+        <Link className="rail-avatar" href={userEmail ? "#settings" : "/login"} aria-label={userEmail ? `Signed in as ${userEmail}` : "Sign in"}>ZW</Link>
       </aside>
 
-      <main className="main">
-        <header className="topbar">
-          <div><h1>Thursday&apos;s trade desk</h1><p>Weakness, edge, then the next plan.</p></div>
-          <div className="top-actions"><div className={`account-scope ${sierraScope?.available ? "active" : ""}`} title={sierraScope?.accountId}><span>Current Lucid</span><strong>{lucidAccountLabel}</strong></div><button className="ghost-button" disabled={!sierraScope?.available}>Import</button><button className="primary-button" onClick={() => document.getElementById("plan")?.scrollIntoView({ behavior: "smooth" })}>New plan</button></div>
+      <div className="desk-shell">
+        <header className="command-bar">
+          <div className="desk-title"><strong>Northstar</strong><span>/</span><span>Futures desk</span></div>
+          <div className="market-clock"><span className="live-dot" /> Sierra local <kbd>ET</kbd></div>
+          <div className="command-actions">
+            <div className={`account-chip ${sierraScope?.available ? "active" : ""}`} title={sierraScope?.accountId}><span>Lucid</span><strong>{lucidAccountLabel}</strong></div>
+            <button className="quiet-button" disabled title="Sierra import connector is not connected yet">Import pending</button>
+            <button className="primary-button" onClick={startNewPlan}>New plan</button>
+          </div>
         </header>
 
-        <section className="snapshot" id="overview" aria-label="Performance summary">
-          <div><span>30D P&amp;L</span><strong>—</strong><small>{sierraScope?.available ? `${lucidAccountLabel} only` : "No account"}</small></div>
-          <div><span>Win rate</span><strong>—</strong><small>No scoped trades</small></div>
-          <div><span>Expectancy</span><strong>—</strong><small>No scoped trades</small></div>
-          <div><span>Plan adherence</span><strong>—</strong><small>No scoped trades</small></div>
-        </section>
-
-        <section className="signals" id="reviews" aria-label="Strengths and weaknesses">
-          <article className="signal leak-card"><div><span>Primary weakness</span><strong>Waiting for current-account evidence</strong><small>Other Lucid accounts are now excluded from analysis</small></div><b className="negative">—</b></article>
-          <article className="signal edge-card"><div><span>Repeatable edge</span><strong>Waiting for current-account evidence</strong><small>Patterns will use {lucidAccountLabel} only</small></div><b className="positive">—</b></article>
-        </section>
-
-        <section className="workspace-grid">
-          <article className="plan-panel" id="plan">
-            <div className="plan-head"><div><h2>Futures plan</h2><p>Manual, modular, locked before entry.</p></div><div className={`status-pill ${draft.lockedAt ? "locked" : ""}`}><span />{draft.lockedAt ? "Locked" : "Draft"}</div></div>
-
-            <div className="plan-controls">
-              <Field label="Contract">
-                <select value={draft.instrument} onChange={(event) => update("instrument", event.target.value)} disabled={Boolean(draft.lockedAt)}>
-                  <optgroup label="Minis">{contracts.filter(({ size }) => size === "Mini").map(({ symbol, label }) => <option key={symbol} value={symbol}>{label} · {symbol}</option>)}</optgroup>
-                  <optgroup label="Micros">{contracts.filter(({ size }) => size === "Micro").map(({ symbol, label }) => <option key={symbol} value={symbol}>{label} · {symbol}</option>)}</optgroup>
-                </select>
-              </Field>
-              <Field label="Setup"><select value={draft.setup} onChange={(event) => update("setup", event.target.value)} disabled={Boolean(draft.lockedAt)}>{setups.map((setup) => <option key={setup}>{setup}</option>)}</select></Field>
-              <Field label="Direction"><div className="segmented"><button className={draft.direction === "Long" ? "selected" : ""} aria-pressed={draft.direction === "Long"} onClick={() => update("direction", "Long")} disabled={Boolean(draft.lockedAt)}>Long</button><button className={draft.direction === "Short" ? "selected short" : ""} aria-pressed={draft.direction === "Short"} onClick={() => update("direction", "Short")} disabled={Boolean(draft.lockedAt)}>Short</button></div></Field>
+        <main className="console">
+          <section className="intelligence-tape" id="overview" aria-label="Trading intelligence">
+            <article className="intelligence-item leak" id="reviews">
+              <div className="intelligence-label"><span className="signal-mark" />Leak to fix <b>30D</b></div>
+              <strong>Waiting for scoped execution evidence</strong>
+              <p>Only {lucidAccountLabel} will contribute to weakness analysis.</p>
+            </article>
+            <article className="intelligence-item edge">
+              <div className="intelligence-label"><span className="signal-mark" />Repeatable edge <b>30D</b></div>
+              <strong>Waiting for scoped execution evidence</strong>
+              <p>Setups, timing, and discipline patterns will appear here.</p>
+            </article>
+            <div className="metric-matrix" aria-label="Performance summary">
+              <div><span>Actual P&amp;L</span><strong>—</strong><small>30D</small></div>
+              <div><span>Win rate</span><strong>—</strong><small>Scoped</small></div>
+              <div><span>Expectancy</span><strong>—</strong><small>Per trade</small></div>
+              <div><span>Adherence</span><strong>—</strong><small>Plans</small></div>
             </div>
+          </section>
 
-            <Field label="Trade thesis"><textarea rows={1} value={draft.thesis} onChange={(event) => update("thesis", event.target.value)} disabled={Boolean(draft.lockedAt)} /></Field>
+          <section className="workbench">
+            <article className="plan-panel" id="plan">
+              <div className="plan-head">
+                <div><h1>Futures plan</h1><p>Define the trade. Lock it before execution.</p></div>
+                <div className={`status-pill ${draft.lockedAt ? "locked" : ""}`}><span />{draft.lockedAt ? "Locked" : "Draft"}</div>
+              </div>
 
-            <div className="level-row">
-              <Field label="Entry"><input value={draft.entry} onChange={(event) => update("entry", event.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
-              <Field label="Stop"><input value={draft.stop} onChange={(event) => update("stop", event.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
-              <Field label="Target"><input value={draft.target} onChange={(event) => update("target", event.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
-              <Field label="Qty"><input value={draft.contracts} onChange={(event) => update("contracts", event.target.value)} inputMode="numeric" disabled={Boolean(draft.lockedAt)} /></Field>
-            </div>
+              <div className="plan-controls">
+                <Field label="Contract">
+                  <select value={draft.instrument} onChange={(event) => update("instrument", event.target.value)} disabled={Boolean(draft.lockedAt)}>
+                    <optgroup label="Minis">{contracts.filter(({ size }) => size === "Mini").map(({ symbol, label }) => <option key={symbol} value={symbol}>{label} · {symbol}</option>)}</optgroup>
+                    <optgroup label="Micros">{contracts.filter(({ size }) => size === "Micro").map(({ symbol, label }) => <option key={symbol} value={symbol}>{label} · {symbol}</option>)}</optgroup>
+                  </select>
+                </Field>
+                <Field label="Setup"><select value={draft.setup} onChange={(event) => update("setup", event.target.value)} disabled={Boolean(draft.lockedAt)}>{setups.map((setup) => <option key={setup}>{setup}</option>)}</select></Field>
+                <Field label="Direction"><div className="segmented"><button className={draft.direction === "Long" ? "selected" : ""} aria-pressed={draft.direction === "Long"} onClick={() => update("direction", "Long")} disabled={Boolean(draft.lockedAt)}>Long</button><button className={draft.direction === "Short" ? "selected short" : ""} aria-pressed={draft.direction === "Short"} onClick={() => update("direction", "Short")} disabled={Boolean(draft.lockedAt)}>Short</button></div></Field>
+              </div>
 
-            <div className="plan-readout">
-              <span>Risk <strong>{riskPoints.toFixed(0)} pts</strong></span>
-              <span>R:R <strong>{rr.toFixed(2)}R</strong></span>
-              <span>Complete <strong>{completion}%</strong></span>
-              <span>Actual P&amp;L <strong className="muted-value">Pending import</strong></span>
-            </div>
+              <Field label="Trade thesis"><textarea rows={2} value={draft.thesis} onChange={(event) => update("thesis", event.target.value)} disabled={Boolean(draft.lockedAt)} /></Field>
 
-            <div className="module-head"><h3>Optional context</h3><span>{Object.values(draft.modules).filter(Boolean).length} on</span></div>
-            <div className="module-grid">
-              {moduleMeta.map(({ key, label }) => (
-                <div className={`module-chip ${activeModule === key ? "selected" : ""}`} key={key}>
-                  <button className="module-name" onClick={() => setActiveModule(key)} disabled={!draft.modules[key]}>{label}</button>
-                  <button className={`switch ${draft.modules[key] ? "on" : ""}`} aria-label={`${draft.modules[key] ? "Disable" : "Enable"} ${label}`} aria-pressed={draft.modules[key]} onClick={() => { update("modules", { ...draft.modules, [key]: !draft.modules[key] }); setActiveModule(key); }} disabled={Boolean(draft.lockedAt)}><i /></button>
-                </div>
-              ))}
-            </div>
-            <div className="module-editor">
-              <label htmlFor={`module-${selectedModule.key}`}>{selectedModule.label}</label>
-              {draft.modules[selectedModule.key] ? <input id={`module-${selectedModule.key}`} value={String(draft[selectedModule.key])} onChange={(event) => update(selectedModule.key, event.target.value)} disabled={Boolean(draft.lockedAt)} placeholder={selectedModule.key === "events" ? "CPI 08:30 · no entry 08:25–08:35" : selectedModule.helper} /> : <button onClick={() => update("modules", { ...draft.modules, [selectedModule.key]: true })}>Enable module</button>}
-            </div>
+              <div className="level-row">
+                <Field label="Entry"><input value={draft.entry} onChange={(event) => update("entry", event.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
+                <Field label="Hard stop"><input value={draft.stop} onChange={(event) => update("stop", event.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
+                <Field label="Target"><input value={draft.target} onChange={(event) => update("target", event.target.value)} inputMode="decimal" disabled={Boolean(draft.lockedAt)} /></Field>
+                <Field label="Qty"><input value={draft.contracts} onChange={(event) => update("contracts", event.target.value)} inputMode="numeric" disabled={Boolean(draft.lockedAt)} /></Field>
+              </div>
 
-            <div className="plan-actions">
-              <div className="save-state"><Icon name="shield" /><span><strong>{draft.lockedAt ? cloudState === "saved" ? "Locked to Northstar" : cloudState === "saving" ? "Locking…" : cloudState === "error" ? "Cloud failed · local safe" : cloudState === "local" ? "Locked locally" : "Plan locked" : saved ? "Draft saved" : "Unsaved changes"}</strong><small>{draft.lockedAt ? new Date(draft.lockedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Local until locked"}</small></span></div>
-              {!draft.lockedAt ? <><button className="ghost-button" onClick={saveDraft}>Save</button><button className="primary-button" onClick={lockPlan}>Lock plan</button></> : <button className="ghost-button" onClick={() => update("lockedAt", undefined)}>Revise</button>}
-            </div>
-          </article>
+              <div className="plan-readout">
+                <span>Stop distance <strong>{riskPoints.toFixed(0)} pts</strong></span>
+                <span>Planned R:R <strong>{rr.toFixed(2)}R</strong></span>
+                <span>Complete <strong>{completion}%</strong></span>
+                <span>Actual P&amp;L <strong className="pending-value">Pending import</strong></span>
+              </div>
 
-          <aside className="evidence-rail">
-            <section className="recent" id="journal">
-              <div className="section-head"><h2>Recent trades</h2><button className="text-button" aria-label="Open full journal">Journal <Icon name="chevron" /></button></div>
-              <div className="journal-empty"><strong>No scoped trades yet</strong><p>{sierraScope?.available ? `${sierraScope.matchingActivityLogs ?? 0} ${lucidAccountLabel} activity logs are ready for the connector.` : "Connect the active Sierra account to begin."}</p></div>
-            </section>
+              <div className="module-head"><h2>Plan modules</h2><span>{Object.values(draft.modules).filter(Boolean).length} active</span></div>
+              <div className="module-grid" role="tablist" aria-label="Plan modules">
+                {moduleMeta.map(({ key, label }) => (
+                  <div className={`module-tab ${activeModule === key ? "selected" : ""} ${draft.modules[key] ? "enabled" : ""}`} key={key}>
+                    <button className="module-name" role="tab" aria-selected={activeModule === key} onClick={() => setActiveModule(key)}>{label}</button>
+                    <button className={`switch ${draft.modules[key] ? "on" : ""}`} aria-label={`${draft.modules[key] ? "Disable" : "Enable"} ${label}`} aria-pressed={draft.modules[key]} onClick={() => { update("modules", { ...draft.modules, [key]: !draft.modules[key] }); setActiveModule(key); }} disabled={Boolean(draft.lockedAt)}><i /></button>
+                  </div>
+                ))}
+              </div>
+              <div className="module-editor" key={selectedModule.key} aria-live="polite">
+                <label htmlFor={`module-${selectedModule.key}`}>{selectedModule.label}</label>
+                {draft.modules[selectedModule.key] ? <input id={`module-${selectedModule.key}`} value={String(draft[selectedModule.key])} onChange={(event) => update(selectedModule.key, event.target.value)} disabled={Boolean(draft.lockedAt)} placeholder={selectedModule.key === "events" ? "CPI 08:30 · no entry 08:25–08:35" : selectedModule.helper} /> : <button onClick={() => update("modules", { ...draft.modules, [selectedModule.key]: true })}>Enable {selectedModule.label.toLowerCase()}</button>}
+              </div>
 
-            <section className="entry-gate">
-              <div className="section-head"><h2>Entry gate</h2><strong>3/4</strong></div>
-              <div className="check-grid">{["Plan before entry", "Risk fixed", "Trigger confirmed", "Never add to losers"].map((item, index) => <label className="check-row" key={item}><input type="checkbox" defaultChecked={index < 3}/><span><i><Icon name="check" /></i>{item}</span></label>)}</div>
-            </section>
+              <div className="plan-actions">
+                <div className="save-state"><Icon name="shield" /><span><strong>{draft.lockedAt ? cloudState === "saved" ? "Locked to Northstar" : cloudState === "saving" ? "Locking…" : cloudState === "error" ? "Cloud failed · local safe" : cloudState === "local" ? "Locked locally" : "Plan locked" : saved ? "Draft saved" : "Unsaved changes"}</strong><small>{draft.lockedAt ? new Date(draft.lockedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Local until locked"}</small></span></div>
+                {!draft.lockedAt ? <><button className="quiet-button" onClick={saveDraft}>Save draft</button><button className="primary-button" onClick={lockPlan}>Lock plan</button></> : <button className="quiet-button" onClick={() => update("lockedAt", undefined)}>Create revision</button>}
+              </div>
+            </article>
 
-            <section className="session-pnl"><span>Today&apos;s actual P&amp;L</span><strong>—</strong><small>{sierraScope?.available ? `${lucidAccountLabel} only · no executions imported` : "Waiting for current account"}</small></section>
-            <section className="sync-row"><div className="sync-icon"><Icon name="shield" /></div><div><strong>Sierra sync pending</strong><p>Manual plan is fully available.</p></div></section>
-          </aside>
-        </section>
-      </main>
+            <aside className="evidence-rail">
+              <section className="scope-panel">
+                <div className="panel-title"><h2>Data scope</h2><span className={`status-text ${sierraScope?.available ? "online" : ""}`}>{sierraScope?.available ? "Online" : "Pending"}</span></div>
+                <div className="scope-account"><span>Current Lucid account</span><strong>{lucidAccountLabel}</strong></div>
+                <dl className="scope-stats"><div><dt>Accepted logs</dt><dd>{sierraScope?.matchingActivityLogs ?? 0}</dd></div><div><dt>Other accounts</dt><dd>{sierraScope?.ignoredActivityLogs ?? 0} blocked</dd></div></dl>
+              </section>
+
+              <section className="pnl-panel">
+                <div><span>Today&apos;s actual P&amp;L</span><small>{lucidAccountLabel} only</small></div><strong>—</strong>
+              </section>
+
+              <section className="entry-gate">
+                <div className="panel-title"><h2>Entry gate</h2><strong>3 / 4</strong></div>
+                <div className="check-list">{["Plan locked before entry", "Stop fixed", "Trigger confirmed", "Never add to a loser"].map((item, index) => <label className="check-row" key={item}><input type="checkbox" defaultChecked={index < 3}/><span><i><Icon name="check" /></i>{item}</span></label>)}</div>
+              </section>
+
+              <section className="recent" id="journal">
+                <div className="panel-title"><h2>Recent trades</h2><button className="text-button" disabled title="No imported trades yet">No trades <Icon name="chevron" /></button></div>
+                <div className="journal-empty"><strong>No scoped trades yet</strong><p>{sierraScope?.available ? `${sierraScope.matchingActivityLogs ?? 0} account-matched logs are ready for the Sierra connector.` : "Connect the active Sierra account to begin."}</p></div>
+              </section>
+
+              <section className="sync-row"><div className="sync-icon"><Icon name="shield" /></div><div><strong>Sierra import pending</strong><p>Planning remains available.</p></div></section>
+            </aside>
+          </section>
+        </main>
+      </div>
     </div>
   );
 }
